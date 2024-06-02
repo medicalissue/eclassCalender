@@ -15,6 +15,8 @@ class Todo(QMainWindow):
         self.todayDate = datetime.now().date()
         self.initUI()
         self.cb = QLabel(self)
+        self.cb.setText("Loading...")
+        self.cb.move(20, 40)
         self.cb.show()
         self.updater.doneSignal.connect(self.updateCheckbox)
         self.updater.start()
@@ -36,6 +38,8 @@ class Todo(QMainWindow):
         setAction.triggered.connect(self.setLogin)
         setAction.setShortcut('Ctrl+W')
 
+        menuAction = QAction(QIcon('./resources/bob.png'), 'Menu', self)
+        menuAction.triggered.connect(self.showMenu)
         infoAction = QAction(QIcon('./resources/puang.png'), 'Info', self)
 
         refreshAction = QAction(QIcon('./resources/refresh.png'), 'Refresh', self)
@@ -53,6 +57,7 @@ class Todo(QMainWindow):
         refresh.addAction(refreshAction)
 
         info = menubar.addMenu('Info')
+        info.addAction(menuAction)
         info.addAction(infoAction)
 
         self.setGeometry(300, 300, 300, 200)
@@ -64,13 +69,13 @@ class Todo(QMainWindow):
         if ok:
             pw, ok = QInputDialog.getText(self, 'Set PW', 'Enter eclass PW:', QLineEdit.Password)
         else:
-            QMessageBox.warning(self, "OK", "다시 설정해주세요!")
+            QMessageBox.warning(self, "FAILED", "다시 설정해주세요!")
             return
         
         if ok:
             QMessageBox.information(self, "OK", "설정 완료!")
         else:
-            QMessageBox.warning(self, "OK", "다시 설정해주세요!")
+            QMessageBox.warning(self, "FAILED", "다시 설정해주세요!")
             return
         
         if os.path.isfile(IDPW_PATH):
@@ -98,6 +103,14 @@ class Todo(QMainWindow):
         self.cb.move(20, 40)
         self.cb.show()
 
+    def showMenu(self):
+        if crawl.getMenu() == "Fail":
+            QMessageBox.warning(self, "ERROR", "학식 정보를 받는중 오류가 발생했습니다!")
+            return
+        with open('./resources/menu.puang', 'r') as f:
+            menu = f.readlines()
+        QMessageBox.information(self, "학식 정보", "".join(menu).strip())
+
 class Update(QThread):
     doneSignal = pyqtSignal()
 
@@ -118,7 +131,7 @@ class Update(QThread):
             # print("asdkadiik")
             todoToday = ["Login failed!\n", "Please update ID/PW\n", "or check internet connection."]
         else:
-            f = open("todo.puang", "r")
+            f = open("./resources/todo.puang", "r")
             todoToday = f.readlines()
             f.close()
             print(todoToday)
