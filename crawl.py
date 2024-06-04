@@ -1,6 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 크롤링에 필요한 xpath 주소들
 idXpath = '//*[@id="login_user_id"]'
@@ -53,18 +56,18 @@ def getDashboard(ID, PW):
     else:
         for i in range(len(dashBoardTodo)):
             if "is not marked as done." in dashBoardTodo[i]:
-                retTodo.append(dashBoardTodo[i][3:-23] + "\n")
+                retTodo.append(dashBoardTodo[i].strip(" is not marked as done.") + "\n")
     
     # todo.puang 에 해야하는 과제물 이름을 씀.
-    path = "./resources/todo.puang"
-    f = open(path, 'w')
+    path = BASE_DIR + "/resources/todo.puang"
+    f = open(path, 'w', encoding="UTF-8")
     f.writelines(retTodo)
     f.close()
 
 # 오늘의 학식 크롤링
 def getMenu():
     #메뉴 갱신 전까지 임시로 띄울 메시지
-    with open("./resources/menu.puang", "w") as f:
+    with open(BASE_DIR + "/resources/menu.puang", "w", encoding="UTF-8") as f:
         f.write("메뉴 갱신중.. 잠시만 기다려주세요!")
 
     #크롤링할때 오류 발생시 갱신 실패 메시지를 띄우기 위한 try-except
@@ -75,9 +78,11 @@ def getMenu():
         driver = webdriver.Chrome(options=options)
         driver.implicitly_wait(10)
 
+        print("asdjasdajk")
+
         driver.get(url='https://chat.cau.ac.kr/v2/index.html') # 중앙대 챗봇 링크(로그인 필요 x)
         time.sleep(0.5) # 챗봇 로딩 기다려주는 시간
-    
+
         # 입력, 전송 element 찾기
         chat = driver.find_element(By.XPATH, chatXpath)
         send = driver.find_element(By.XPATH, sendXpath)
@@ -91,9 +96,10 @@ def getMenu():
 
         # 모든 chat 기록 menu에 일단 저장
         menu = list(map(lambda x: x.text, driver.find_elements(By.CLASS_NAME, "bubble_area")))
-        
+        print(menu, sep="\n========================================\n")
+        print(len(menu))
         # 조식, 중식, 석식 메뉴만 파싱하여 menu.puang에 쓰기
-        f = open("./resources/menu.puang", "w")
+        f = open(BASE_DIR + "/resources/menu.puang", "w", encoding="UTF-8")
         for i in range(len(menu)):
             if "메뉴입니다." in menu[i]: # "메뉴입니다." <= 필요없는 데이터를 구분짓는 구문
                 temp = menu[i].split("\n")
@@ -101,10 +107,11 @@ def getMenu():
                     if "메뉴입니다." in temp[j]:
                         temp = temp[j:-1]
                         break
+                print(temp)
                 f.write("\n".join(temp).strip("\n") + "\n\n")
         f.close()
     except:
-        with open("./resources/menu.puang", "w") as f:
+        with open(BASE_DIR + "/resources/menu.puang", "w", encoding="UTF-8") as f:
             f.write("학식 갱신 실패..") # 오류 발생시 갱신 실패 메시지 적기
 
 # 오늘의 운세 크롤링
@@ -129,7 +136,7 @@ def getFortune():
     
     # 별자리별로 다른 파일에 각각의 운세를 순서대로 쓰기
     for i in range(12):
-        with open(f"./resources/fortune/{i}.puang", "w") as f:
+        with open(BASE_DIR + f"/resources/fortune/{i}.puang", "w", encoding="UTF-8") as f:
             f.write(fortune[i])
     
 # if __name__ == "__main__":

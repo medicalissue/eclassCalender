@@ -5,7 +5,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import *
 import crawl
 
-IDPW_PATH = "./settings/idpw.puang" # id, pw 저장된 주소 미리 선언
+IDPW_PATH = "/settings/idpw.puang" # id, pw 저장된 주소 미리 선언
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 todoToday = list() # 비동기 함수를 수월하게 동작시켜주기 위한 오늘까지 해야할 과제물들을 담는 전역변수 미리 선언
 dt = QDate()
 
@@ -53,6 +54,7 @@ class Todo(QMainWindow):
         self.combo = QComboBox()
         self.combo.addItems(birthday)
         self.combo.setWindowTitle("생일 입력!")
+        self.combo.setGeometry(500, 100, 500, 100)
         self.combo.currentIndexChanged.connect(self.updateFortune) # self.combo의 값이 변화하였을때 그에 맞는 운세를 팝업해주는 함수(self.updateFortune) 연결
 
         # 오늘의 운세를 표시할 label 선언
@@ -60,13 +62,14 @@ class Todo(QMainWindow):
         self.ftsh.setWindowTitle("오늘의 운세")
         self.ftsh.move(20, 20)
         self.ftsh.setText("")
-        self.ftsh.show()
 
         # 종강까지 d-day 를 표시하기 위해, 종강일을 나타낼 변수(self.endDate) 를 초기값을 오늘으로 하여 선언
         currentTime = QDateTime.currentDateTime()
         self.endDate = QDateEdit()
         self.endDate.setDateTime(currentTime)
         self.endDate.setCalendarPopup(True)
+        self.endDate.setWindowTitle("종강일자 선택!")
+        self.endDate.setGeometry(400, 70, 400, 70)
 
         # 오늘의 날짜를 statusBar(밑쪽 바) 에 나타내기 위해 오늘 날짜를 저장하는 변수(self.date)를 선언
         self.date = QLabel()
@@ -111,7 +114,7 @@ class Todo(QMainWindow):
         info.addAction(infoAction)
 
         # gui의 크기를 설정하고, show
-        self.setGeometry(300, 300, 300, 200)
+        self.setGeometry(300, 300, 500, 300)
         self.show()
 
     # ID/PW 설정이 눌렸을때 실행될 함수
@@ -131,7 +134,7 @@ class Todo(QMainWindow):
             return
         
         # return 되지 않았다는 것은, id, pw를 입력하였다는 뜻이므로 그를 파일에 저장.
-        f = open(IDPW_PATH, "w")
+        f = open(BASE_DIR + IDPW_PATH, "w", encoding="UTF-8")
         f.write(id + "\n" + pw)
         f.close()
         
@@ -161,7 +164,7 @@ class Todo(QMainWindow):
     # 오늘자 학식 메뉴를 팝업해서 보여주는 함수
     def showMenu(self):
         # 학식 정보가 저장된 파일 읽고, 띄우기
-        with open('./resources/menu.puang', 'r') as f:
+        with open(BASE_DIR + '/resources/menu.puang', 'r', encoding="UTF-8") as f:
             QMessageBox.information(self, "학식 정보", "".join(f.readlines()).strip())
 
     # 종강일자 계산을 위해, 종강일을 선택할수 있게 팝업을 띄워주는 함수
@@ -177,7 +180,7 @@ class Todo(QMainWindow):
     def updateFortune(self):    
         i = self.combo.currentIndex() # 생일 입력 팝업(self.combo)로 부터, 사용자의 생일 범위를 읽어옴.
         # 생일에 해당되는 운세 읽어오기
-        with open(f"./resources/fortune/{i}.puang", "r") as f:
+        with open(BASE_DIR + f"/resources/fortune/{i}.puang", "r", encoding="UTF-8") as f:
             ft = f.readlines()
         # 읽어온 운세를 바탕으로, 운세 팝업을 띄우기
         self.ftsh.clear()
@@ -203,7 +206,7 @@ class Update(QThread):
         global todoToday # todo가 갱신된 파일로부터 읽어와 저장할 전역 변수
 
         # id, pw 파일로부터 읽어오기
-        f = open(IDPW_PATH, "r")
+        f = open(BASE_DIR + IDPW_PATH, "r", encoding="UTF-8")
         id = f.readline().strip()
         pw = f.readline().strip()
         f.close()
@@ -213,7 +216,7 @@ class Update(QThread):
         elif crawl.getDashboard(id, pw) == "Fail": # crawl.getDashboard를 호출하여 크롤링 시도, 로그인 실패할 경우
             todoToday = ["Login failed!\n", "Please update ID/PW\n", "or check internet connection."]
         else: # 크롤링 성공시 오늘 할 일을 todo.puang 파일에서 읽어와 전역변수 todoToday에 저장해줌.
-            f = open("./resources/todo.puang", "r")
+            f = open(BASE_DIR + "/resources/todo.puang", "r", encoding="UTF-8")
             todoToday = f.readlines()
             f.close()
 
