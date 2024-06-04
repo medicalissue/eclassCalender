@@ -78,8 +78,6 @@ def getMenu():
         driver = webdriver.Chrome(options=options)
         driver.implicitly_wait(10)
 
-        print("asdjasdajk")
-
         driver.get(url='https://chat.cau.ac.kr/v2/index.html') # 중앙대 챗봇 링크(로그인 필요 x)
         time.sleep(0.5) # 챗봇 로딩 기다려주는 시간
 
