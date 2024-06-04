@@ -28,8 +28,8 @@ def getDashboard(ID, PW):
     idBox = driver.find_element(By.XPATH, idXpath)
     pwBox = driver.find_element(By.XPATH, pwXpath)
     loginBtn = driver.find_element(By.XPATH, loginXpath)
-    idBox.send_keys(ID)
-    pwBox.send_keys(PW)
+    idBox.send_keys(ID) # id 입력
+    pwBox.send_keys(PW) # pw 입력
     loginBtn.click()
 
     # 로그인 실패시 예외처리
@@ -61,6 +61,7 @@ def getDashboard(ID, PW):
     f.writelines(retTodo)
     f.close()
 
+# 오늘의 학식 크롤링
 def getMenu():
     #메뉴 갱신 전까지 임시로 띄울 메시지
     with open("./resources/menu.puang", "w") as f:
@@ -106,31 +107,32 @@ def getMenu():
         with open("./resources/menu.puang", "w") as f:
             f.write("학식 갱신 실패..") # 오류 발생시 갱신 실패 메시지 적기
 
+# 오늘의 운세 크롤링
 def getFortune():
+    # 웹드라이버 선언
     options = webdriver.ChromeOptions()
     options.add_argument("headless")
     driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(10)
 
-    driver.get(url="https://fortune.nate.com/contents/freeunse/freeunseframe.nate?freeUnseId=today04")
-    driver.switch_to.frame("contentFrame")
+    driver.get(url="https://fortune.nate.com/contents/freeunse/freeunseframe.nate?freeUnseId=today04") # 오늘의 운세 사이트
+    driver.switch_to.frame("contentFrame") # 운세를 긁어오기 위해 iframe 전환
 
-    fortune = list()
+    fortune = list() # 오늘의 운세를 담기 위한 리스트
 
+    # 별자리별로 버튼을 찾고, 클릭한 후에 그 운세 텍스트를 fortune 리스트에 추가.
     for i in range(1, 24, 2):
-        #tee > tbody > tr > td:nth-child(1) > a
-        #tee > tbody > tr > td:nth-child(23) > a
-        btn = driver.find_element(By.XPATH, f"""//*[@id="tee"]/tbody/tr/td[{i}]""")
-        print(btn)
-        btn.click()
-        time.sleep(0.5)
+        driver.find_element(By.XPATH, f"""//*[@id="tee"]/tbody/tr/td[{i}]""").click()
+        time.sleep(0.3)
         context = driver.find_element(By.XPATH, """//*[@id="con_box"]""").text
         fortune.append(context)
     
+    # 별자리별로 다른 파일에 각각의 운세를 순서대로 쓰기
     for i in range(12):
         with open(f"./resources/fortune/{i}.puang", "w") as f:
             f.write(fortune[i])
-if __name__ == "__main__":
-    getFortune()
-    # getMenu()
-    # print(getDashboard(ID, PW))
+    
+# if __name__ == "__main__":
+#     getFortune()
+#     getMenu()
+#     print(getDashboard(ID, PW))
