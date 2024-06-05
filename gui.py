@@ -87,10 +87,11 @@ class Todo(QMainWindow):
         untilAction = QAction(QIcon('./resources/until.png'), '종강까지 몇일?', self) # 종강까지 일자 계산기
         untilAction.triggered.connect(self.setEndDate) # 종강까지 일자를 선택하고, 계산하는 함수(self.EndDate) 연결
 
-        fortuneAction = QAction(QIcon('./resources/clover.webp'), '오늘의 운세', self) # 별자리별 운세 조회기
+        fortuneAction = QAction(QIcon('./resources/clover.png'), '오늘의 운세', self) # 별자리별 운세 조회기
         fortuneAction.triggered.connect(self.showFortune) # 생일 범위를 입력받고, 운세를 조회할 수 있는 함수(self.showFortune) 연결
 
-        infoAction = QAction(QIcon('./resources/puang.png'), 'Info', self) # pass
+        infoAction = QAction(QIcon('./resources/puang.png'), 'Info', self) # 제작자 보여주기
+        infoAction.triggered.connect(self.showinfo)
 
         refreshAction = QAction(QIcon('./resources/refresh.png'), '새로고침', self) # 수동으로 오늘까지 할 과제를 갱신
         refreshAction.triggered.connect(self.updater.start) # 오늘 할 일을 업데이트하고 갱신해주는 함수(self.updater.start() -> Update 객체의 run() 함수) 연결
@@ -187,6 +188,9 @@ class Todo(QMainWindow):
         self.ftsh.setText("".join(ft))
         self.ftsh.adjustSize()
         self.ftsh.show()
+
+    def showinfo(self):
+        QMessageBox.information(self, '제작자', 'MADE BY\n\n권준상, 류민혁, 박재휘')
 
 
 # 아래 함수들이 다른 class 로 선언된 이유:
